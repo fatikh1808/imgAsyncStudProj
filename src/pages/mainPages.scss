@@ -1,0 +1,38 @@
+.Main__Page {
+    display: grid;
+    grid-template-columns: 0.5fr 1.5fr 0.5fr;
+    grid-template-rows: 1fr;
+    grid-template-areas: "left__bar main__content right__bar";
+
+    .left__bar {
+        grid-area: left__bar;
+        height: 100px;
+        background-color: springgreen;
+    }
+
+    .main__content {
+        grid-area: main__content;
+        height: 100px;
+        background-color: coral;
+    }
+
+    .right__bar {
+        grid-area: right__bar;
+        height: 100px;
+        background-color: aquamarine;
+
+        form {
+            &.rjsf {
+                .submit__button {
+                    display: flex;
+                    margin: 24px;
+                    justify-content: flex-end;
+                }
+                .py-4 {
+                    padding-top: 0.8rem !important;
+                    padding-bottom: 0 !important;
+                }
+            }
+        }
+    }
+}
