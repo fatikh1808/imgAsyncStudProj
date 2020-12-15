@@ -4,7 +4,7 @@ import ImgItem from "../imgItem";
 const MainContent = ({ formData }) => {
     const [imgList, setImgList] = useState([]);
 
-    const download3 = async (url) => {
+    const downloadImg = async (url) => {
         let response = await fetch(url.uri);
         if (!response.ok) {
             throw new Error(response.status);
@@ -14,14 +14,14 @@ const MainContent = ({ formData }) => {
             await setImgList([...imgList, objectURL]);
         }
     };
-    const download2 = async (formData) => {
+    const downloadAsync = async (formData) => {
         for (let i in formData) {
-            await download3(formData[i]);
+            await downloadImg(formData[i]);
         }
     };
 
     useEffect(() => {
-        download2(formData);
+        downloadAsync(formData);
     }, [formData]);
 
     const imgMaper = imgList.map((item, index) => {
