@@ -14,12 +14,14 @@ const MainPage = () => {
     const getFormData = (formData) => {
         setFormDatas(get(formData, "uriArr", []));
     };
-
+    const getDropZone = (dropedItem) => {
+        setFormDatas(dropedItem, true);
+    };
     return (
         <main className={"Main__Page"}>
             <LeftBar />
             <MainContent formData={formDatas} />
-            <Rightbar getFormData={getFormData} />
+            <Rightbar getFormData={getFormData} getDropZone={getDropZone} />
         </main>
     );
 };
