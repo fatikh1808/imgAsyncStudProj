@@ -1,15 +1,16 @@
-.glyphicon {
-    display: none;
-}
-.btn-add::after {
-    content: "Add";
-}
-.array-item-move-up::after {
-    content: "Move Up";
-}
-.array-item-move-down::after {
-    content: "Move Down";
-}
-.array-item-remove::after {
-    content: "Remove";
+.right__bar {
+    &__drop_zone {
+        border: 1px solid black;
+        height: 300px;
+        width: auto;
+        text-align-last: center;
+        background-color: tomato;
+    }
+    &__drop_zone_active {
+        border: 1px solid black;
+        height: 300px;
+        width: auto;
+        text-align-last: center;
+        background-color: greenyellow;
+    }
 }

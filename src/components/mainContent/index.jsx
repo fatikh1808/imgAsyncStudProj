@@ -5,13 +5,17 @@ const MainContent = ({ formData }) => {
     const [imgList, setImgList] = useState([]);
 
     const downloadImg = async (url) => {
-        let response = await fetch(url.uri);
-        if (!response.ok) {
-            throw new Error(response.status);
+        if (typeof url === "string") {
+            await setImgList([...imgList, url]);
         } else {
-            let myBlob = await response.blob();
-            let objectURL = await URL.createObjectURL(myBlob);
-            await setImgList([...imgList, objectURL]);
+            let response = await fetch(url.uri);
+            if (!response.ok) {
+                throw new Error(response.status);
+            } else {
+                let myBlob = await response.blob();
+                let objectURL = await URL.createObjectURL(myBlob);
+                await setImgList([...imgList, objectURL]);
+            }
         }
     };
     const downloadAsync = async (formData) => {
