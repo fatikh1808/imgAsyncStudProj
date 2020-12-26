@@ -1,5 +1,6 @@
 import MainPage from "./pages/mainPages";
 import React, { useEffect } from 'react';
+import 'antd/dist/antd.css'; // or 'antd/dist/antd.less'
 
 function App() {
 

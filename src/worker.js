@@ -1,92 +1,45 @@
 // eslint-disable-next-line import/no-anonymous-default-export
 export default () => {
+
+    const urlMaker = (file) => {
+        return URL.createObjectURL(file)
+    }
+
   // eslint-disable-next-line no-restricted-globals
-self.addEventListener("message", async e => {
+self.addEventListener("message", async event => {
 
-    let images = [];
-    let Blob;
-    let url
-    const promises = e.data.map(async el => {
-                if (el.uri === undefined) {
-                url = URL.createObjectURL(el)
-                const response = await fetch(url)
-                const fileBlob = await response.blob();
-                Blob = fileBlob;
+    let images = [];    
+    
+    const promises = event.data.map(async el => {
+        if (el.uri === undefined) {
+            await fetch(urlMaker(el))
+                .then((response) => response.blob())
+                .then((blob) => {
+                    images.push({
+                        imageURL: urlMaker(blob),
+                        blob: blob
+                    })
+                    postMessage({ key: "process", process: 1 }); //how to save process 
+                })
+                .catch(error => postMessage({key: "download error", title: error}))
             } else {
-                const response = await fetch(el.uri)
-                const fileBlob = await response.blob()
-                url = URL.createObjectURL(fileBlob)
-                Blob = fileBlob
+                await fetch(el.uri)
+                    .then((response) => response.blob())
+                    .then((blob) => {
+                        images.push({
+                            imageURL: urlMaker(blob),
+                            blob: blob
+                        })
+                        postMessage({ key: "process", process: 1}); //how to save process 
+                    })
+                .catch(error => postMessage({key: "download error", title: error}))
             }
-            return images.push({
-                imageURL: url,
-                blob: Blob,
-            })
-
+        
     });
-    await Promise.all(promises)
-        postMessage(images)
+    await Promise.all(promises);
+    postMessage({ key: "data", images });
         
     
-
-    // e.data.forEach(async el => {
-    //     console.log("el", el)
-    //     let Blob;
-    //     let url
-    //     if (el.uri === undefined) {
-    //         url = URL.createObjectURL(el)
-    //         const t = await fetch(url)
-    //         const b = await t.blob();
-    //         Blob = b;
-    //     } else {
-    //         const t = await fetch(el.uri)
-    //         const b = await t.blob()
-    //         url = URL.createObjectURL(b)
-    //         Blob = b
-    //     }
-    //     images.push({
-    //         imageURL: url,
-    //         blob: Blob,
-    //     })
-    // });
-
-    // postMessage(images)
-
-
-
-
-    // let imageURL;
-    // let blob;
-    // for (let p in e.data) {
-    //     let item = e.data[p]
-    //     if (item.uri === undefined) {
-    //         console.log(e.data[p])
-    //         imageURL = await URL.createObjectURL(item);
-    //         // First, we'll fetch the image file
-    //         const response = await fetch(imageURL)
-    //         // Once the file has been fetched, we'll convert it to a `Blob`
-    //         blob = await response.blob()
-    //     } else {
-    //         let response = await fetch(item.uri);
-    //         if (!response.ok) {
-    //             throw new Error(response.status);
-    //         } else {
-    //             blob = await response.blob();
-    //             imageURL = await URL.createObjectURL(blob);
-    //         }
-    //     }
-    //     images.push({
-    //         imageURL: imageURL,
-    //         blob: blob,
-    //     })
-    // }
-    // postMessage(images)
-
-
-
-
-
-
     //     function* gen(arr) {
     //         for (let i = 0; i < arr.length; i++) {
     //             yield arr[i];
