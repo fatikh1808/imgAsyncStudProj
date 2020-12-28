@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect} from "react";
 import { useDropzone } from "react-dropzone";
 import Form from "@rjsf/core";
 import "./schemaStyle.scss";
@@ -25,14 +25,33 @@ const RightBar = ({ getDropZone, setNum, setAcceptedArray, acceptedArray, reload
             active: true
         })
         myWorker.postMessage(acceptedFiles);
-        setDropLoading(true)        
+        setDropLoading(true)    
     }, []);
+
+    useEffect(() => {
+        myWorker.addEventListener("message", event => {
+            if (event.data.key === "data") {
+                setNum({
+                num: 0,
+                active: false
+            })
+                getDropZone(event.data)
+                setUrlLoading(false)
+                setDropLoading(false)
+            } else if (event.data.key === 'process'){
+                console.log(downloadProcess)
+                setDownloadProcess(downloadProcess + 1)
+            } else {
+                getDropZone(event.data)
+            }
+        });
+    }, [])
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
     });
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (reload) {
             setNum({
                 num: acceptedArray.length,
@@ -41,7 +60,7 @@ const RightBar = ({ getDropZone, setNum, setAcceptedArray, acceptedArray, reload
             myWorker.postMessage(acceptedArray);    
             setReload(false)
         }
-    })
+    },[reload])
 
     const onSubmit = ({ formData }) => {
         setAcceptedArray(formData.uriArr)
@@ -52,24 +71,6 @@ const RightBar = ({ getDropZone, setNum, setAcceptedArray, acceptedArray, reload
         myWorker.postMessage(formData.uriArr);
         setUrlLoading(true)
     }
-
-    myWorker.addEventListener("message", event => {
-        if (event.data.key === "data") {
-            setNum({
-            num: 0,
-            active: false
-        })
-            getDropZone(event.data)
-            setUrlLoading(false)
-            setDropLoading(false)
-        } else if (event.data.key === 'process'){
-            console.log("process",event.data.process) //add function to check if progress or data than work with them
-            // setDownloadProcess(downloadProcess + event.data.process)
-        } else {
-            getDropZone(event.data)
-        }
-    });
-
     return (
         <div className={"right__bar"}>
             <Spin spinning={urlLoading}>
@@ -95,6 +96,7 @@ const RightBar = ({ getDropZone, setNum, setAcceptedArray, acceptedArray, reload
                         )}
                     </form>
             </Spin>
+            {downloadProcess}
         </div>
     );
 };

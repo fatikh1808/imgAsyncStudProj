@@ -19,9 +19,9 @@ self.addEventListener("message", async event => {
                         imageURL: urlMaker(blob),
                         blob: blob
                     })
-                    postMessage({ key: "process", process: 1 }); //how to save process 
+                    postMessage("process",{ key: "process", process: 1 }); //how to save process 
                 })
-                .catch(error => postMessage({key: "download error", title: error}))
+                .catch(error => postMessage("error",{key: "download error", title: error}))
             } else {
                 await fetch(el.uri)
                     .then((response) => response.blob())
@@ -30,14 +30,14 @@ self.addEventListener("message", async event => {
                             imageURL: urlMaker(blob),
                             blob: blob
                         })
-                        postMessage({ key: "process", process: 1}); //how to save process 
+                        postMessage("process",{ key: "process", process: 1}); //how to save process 
                     })
-                .catch(error => postMessage({key: "download error", title: error}))
+                .catch(error => postMessage("error",{key: "download error", title: error}))
             }
         
     });
     await Promise.all(promises);
-    postMessage({ key: "data", images });
+    postMessage("data",{ key: "data", images });
         
     
     //     function* gen(arr) {
