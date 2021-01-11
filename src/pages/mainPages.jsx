@@ -7,31 +7,16 @@ import MainContent from "../components/mainContent";
 import "./mainPages.scss";
 
 const MainPage = () => {
-    const [formDatas, setFormDatas] = useState({
-        key: '',
-        images: [],
-        process: 0,
-        title: ''
-    });
-    const [numImages, setNumImages] = useState({})
-    const [acceptedArray, setAcceptedArray] = useState([])
-    const [reload, setReload] = useState(false)
+    const [loaders, setLoaders] = useState([])
 
     return (
         <main className={"Main__Page"}>
             <LeftBar />
             <MainContent
-                formData={formDatas}
-                numImages={numImages}
-                setReload={setReload}
+                loaders={loaders}
             />
             <Rightbar
-                getDropZone={setFormDatas}
-                setNum={setNumImages}
-                acceptedArray={acceptedArray}
-                setAcceptedArray={setAcceptedArray}
-                reload={reload}
-                setReload={setReload}
+                setLoaders={setLoaders}
             />
         </main>
     );

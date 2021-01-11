@@ -1,6 +1,8 @@
-import React, { useCallback, useState, useEffect} from "react";
+import React, { useCallback, useState, useEffect, Component } from "react";
 import { useDropzone } from "react-dropzone";
 import Form from "@rjsf/core";
+import { v4 as uuid } from 'uuid';
+
 import "./schemaStyle.scss";
 
 import worker from "../../worker.js";
@@ -10,67 +12,56 @@ import { Spin } from 'antd';
 import Button from "react-bootstrap/Button";
 import { schema, uiSchema } from "./schemas";
 
-const RightBar = ({ getDropZone, setNum, setAcceptedArray, acceptedArray, reload, setReload }) => {
+const myWorker = new WebWorker(worker);
 
-    const [dropLoading, setDropLoading] = useState(false);
+function RightBar ({
+    setLoaders
+}) {
+
     const [urlLoading, setUrlLoading] = useState(false);
-    const [downloadProcess, setDownloadProcess] = useState(0)
 
-    let myWorker = new WebWorker(worker);
+    function setUUID(array, loadType) {
+        if (loadType === "url") {
+            return array.map(item => ({
+                ...item,
+                id: uuid(),
+                status: "wait"
+            }))    
+        } else {
+            return array.map(item => ({
+                imageURL: URL.createObjectURL(item),
+                id: uuid(),
+                status: "done"
+            }))   
+        }
+        
+    }
+    
+    const executeStatus = useCallback(function (event) {
+        const message = event.data;
+
+        setLoaders(message);
+    }, []);
 
     const onDrop = useCallback((acceptedFiles) => {
-        setAcceptedArray(acceptedFiles)
-        setNum({
-            num: acceptedFiles.length,
-            active: true
-        })
-        myWorker.postMessage(acceptedFiles);
-        setDropLoading(true)    
+        myWorker.postMessage({status: "loadFromLocal", data: setUUID(acceptedFiles, "local")});
     }, []);
 
     useEffect(() => {
-        myWorker.addEventListener("message", event => {
-            if (event.data.key === "data") {
-                setNum({
-                num: 0,
-                active: false
-            })
-                getDropZone(event.data)
-                setUrlLoading(false)
-                setDropLoading(false)
-            } else if (event.data.key === 'process'){
-                console.log(downloadProcess)
-                setDownloadProcess(downloadProcess + 1)
-            } else {
-                getDropZone(event.data)
-            }
-        });
-    }, [])
+        myWorker.addEventListener("message", executeStatus);
+
+        return () => myWorker.removeEventListener("message", executeStatus);
+    }, []);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
     });
 
-    useEffect(() => {
-        if (reload) {
-            setNum({
-                num: acceptedArray.length,
-                active: true
-            })
-            myWorker.postMessage(acceptedArray);    
-            setReload(false)
-        }
-    },[reload])
-
     const onSubmit = ({ formData }) => {
-        setAcceptedArray(formData.uriArr)
-        setNum({
-            num: formData.uriArr.length,
-            active: true
-        })
-        myWorker.postMessage(formData.uriArr);
+        myWorker.postMessage({status: "loadFromURL", data: setUUID(formData.uriArr, "url")});
         setUrlLoading(true)
     }
+
     return (
         <div className={"right__bar"}>
             <Spin spinning={urlLoading}>
@@ -82,7 +73,6 @@ const RightBar = ({ getDropZone, setNum, setAcceptedArray, acceptedArray, reload
                     </div>
                     </Form>
                 </Spin>
-                <Spin spinning={dropLoading}>
                 <form {...getRootProps()}>
                     <input {...getInputProps()} />
                         {isDragActive ? (
@@ -94,9 +84,7 @@ const RightBar = ({ getDropZone, setNum, setAcceptedArray, acceptedArray, reload
                                 Drag 'n' drop some files here, or click to select files
                             </p>
                         )}
-                    </form>
-            </Spin>
-            {downloadProcess}
+                </form>
         </div>
     );
 };

@@ -32,6 +32,7 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
     "sass": "^1.30.0",
+    "uuid": "^8.3.2",
     "web-vitals": "^0.2.4",
     "worker-loader": "^3.0.6"
   },
