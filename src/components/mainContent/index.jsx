@@ -3,16 +3,24 @@ import { Spin } from 'antd';
 
 import ImgItem from "../imgItem";
 
-const MainContent = ({ loaders }) => {
-    
+const MainContent = ({ loaders, setDelete }) => {
     let ArraySpin = Object.values(loaders)
-    
+    const deleteOnClick = (id) => {
+        setDelete({status: 'delete', id})
+    }
+
     const loaderMap = ArraySpin.map((item, index) => (
-            item.status === "done" ?
-                <ImgItem src={item.imageURL} key={item.id} /> :
-                <div key={index}>
-                    <Spin />
-                </div>
+            item.status === "done" ? 
+            <ImgItem
+                src={item.imageURL}
+                id={item.id}
+                key={index}
+                deleteOnClick={deleteOnClick}
+            /> 
+            :
+            <div key={index}>
+                <Spin />
+            </div>
         ))
     
     return (

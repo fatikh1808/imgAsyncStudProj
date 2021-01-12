@@ -1,54 +1,85 @@
 /* eslint-disable no-loop-func */
 // eslint-disable-next-line import/no-anonymous-default-export
 export default () => {
-    const source = [];
+    
+    const promises = [];
     let data = {};
 
     const urlMaker = (file) => {
         return URL.createObjectURL(file)
     }
+
   // eslint-disable-next-line no-restricted-globals
     self.addEventListener("message", event => {
         
-        if (event.data.status === 'loadedFromLocal') {
-            source.push(event.data.data)
-        }
+        const sourceData = event.data;
 
-        data = [...event.data.data, ...source].reduce((result, { uri, id }) => {
-            result[id] = { uri, status: "loading" };
-
-        return result;
-    }, {});
-
-    postMessage({
-        status: "loading",
-        data
-    });
-
-
-    for (const [id, { uri }] of Object.entries(data)) {
-        fetch(uri)
-            .then((response) => response.blob())
-            .then((blob) => {
-                data[id] = {
-                    status: "done",
-                    uri,
-                    imageURL: urlMaker(blob)
-                };
-                
+        switch (sourceData.status) {
+            case 'delete':
+                delete data[sourceData.id];
                 postMessage(data)
-            })
-            .catch(error => {
-                data[id] = {
-                    status: "error",
-                    uri,
-                    error
-                };
+                break;
+            default:
+                sourceData.forEach(({ uri, id, loadType, imageURL }) => {
+                    switch (loadType) {
+                        case 'local':
+                            data[id] = {
+                                status: "done",
+                                imageURL,
+                                id,
+                                loadType
+                            };
+                    
+                            postMessage(data);
+                            break;
+                        case 'url':
+                            const promise = fetch(uri)
+                                .then((response) => {
+                                    data[id] = {
+                                        status: "loading",
+                                        id,
+                                        uri,
+                                        loadType
+                                    };
 
-                postMessage(data);
-            })
-    }
-    
-    
+                                    postMessage(data)
+
+                                    return response.blob();
+                                })
+                                .then((blob) => {
+                                    imageURL = urlMaker(blob);
+                                    data[id] = {
+                                        status: "done",
+                                        id,
+                                        imageURL,
+                                        uri,
+                                        loadType
+                                    };
+
+                                    postMessage(data);
+                                })
+                                .catch(error => {
+                                    data[id] = {
+                                        status: "error",
+                                        uri,
+                                        error,
+                                        loadType
+                                    };
+
+                                    postMessage(data);
+                                });
+                    
+                            promises.push(promise);
+
+                            break;
+                        default:
+                            break;
+                    }
+                });
+                Promise.all(promises).then(
+                    () => postMessage({status: "finish"})
+                ).catch()
+                break;
+        }
     });
 }

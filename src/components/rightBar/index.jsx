@@ -15,8 +15,16 @@ import { schema, uiSchema } from "./schemas";
 const myWorker = new WebWorker(worker);
 
 function RightBar ({
-    setLoaders
+    setLoaders,
+    deleteTime,
+    setDeleteTime
 }) {
+
+    useEffect(() => {
+        if (deleteTime.status === 'delete') {
+            myWorker.postMessage(deleteTime);
+        }
+    }, [deleteTime])
 
     const [urlLoading, setUrlLoading] = useState(false);
 
@@ -25,13 +33,15 @@ function RightBar ({
             return array.map(item => ({
                 ...item,
                 id: uuid(),
-                status: "wait"
+                status: "wait",
+                loadType: "url"
             }))    
         } else {
             return array.map(item => ({
                 imageURL: URL.createObjectURL(item),
                 id: uuid(),
-                status: "done"
+                status: "wait",
+                loadType: "local"
             }))   
         }
         
@@ -39,12 +49,15 @@ function RightBar ({
     
     const executeStatus = useCallback(function (event) {
         const message = event.data;
-
-        setLoaders(message);
+        if (message.status === "finish") {
+            setUrlLoading(false)
+        } else {
+            setLoaders(message);
+        }
     }, []);
 
     const onDrop = useCallback((acceptedFiles) => {
-        myWorker.postMessage({status: "loadFromLocal", data: setUUID(acceptedFiles, "local")});
+        myWorker.postMessage(setUUID(acceptedFiles, "local"));
     }, []);
 
     useEffect(() => {
@@ -58,7 +71,7 @@ function RightBar ({
     });
 
     const onSubmit = ({ formData }) => {
-        myWorker.postMessage({status: "loadFromURL", data: setUUID(formData.uriArr, "url")});
+        myWorker.postMessage(setUUID(formData.uriArr, "url"));
         setUrlLoading(true)
     }
 
