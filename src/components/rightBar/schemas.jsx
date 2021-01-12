@@ -10,7 +10,6 @@ export const schema = {
                 properties: {
                     uri: {
                         type: "string",
-                        format: "url",
                     },
                 },
             },

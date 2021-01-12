@@ -4,30 +4,52 @@ import { Spin } from 'antd';
 import ImgItem from "../imgItem";
 
 const MainContent = ({ loaders, setDelete }) => {
-    let ArraySpin = Object.values(loaders)
+    // const loadersMap = {
+    //     done: () => <ImgItem
+    //             src={item.imageURL}
+    //             id={item.id}
+    //             key={index}
+    //             deleteOnClick={deleteOnClick}
+    //     />,
+    //     error: () => {
+    //         alert("wrong url")
+    //     },
+    //     default: () => <div key={index}>
+    //                         <Spin />
+    //                     </div>
+    // }
+
+    console.log(loaders)
+
+    let ArraySpin = Object.values(loaders);
+
     const deleteOnClick = (id) => {
-        setDelete({status: 'delete', id})
+        setDelete({ status: 'delete', id })
     }
 
-    const loaderMap = ArraySpin.map((item, index) => (
-            item.status === "done" ? 
-            <ImgItem
-                src={item.imageURL}
-                id={item.id}
-                key={index}
-                deleteOnClick={deleteOnClick}
-            /> 
-            :
-            <div key={index}>
-                <Spin />
-            </div>
-        ))
-    
+    const loaderMap = ArraySpin.map((item, index) => {
+
+        if (item.status === "done") {
+            return <ImgItem
+                        src={item.imageURL}
+                        id={item.id}
+                        key={index}
+                        deleteOnClick={deleteOnClick}
+                    />
+        } else if (item.status === 'error') {
+            return null
+        } else {
+            return <div key={index}>
+                        <Spin />
+                    </div>
+        }
+    })
+
     return (
         <div className={"main__content"} id="main__content">
-            {loaderMap}
+                {loaderMap}
         </div>
     );
-};
+}
 
 export default MainContent;

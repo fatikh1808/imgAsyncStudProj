@@ -16,8 +16,7 @@ const myWorker = new WebWorker(worker);
 
 function RightBar ({
     setLoaders,
-    deleteTime,
-    setDeleteTime
+    deleteTime
 }) {
 
     useEffect(() => {
@@ -38,6 +37,7 @@ function RightBar ({
             }))    
         } else {
             return array.map(item => ({
+                file: item,
                 imageURL: URL.createObjectURL(item),
                 id: uuid(),
                 status: "wait",
@@ -51,6 +51,8 @@ function RightBar ({
         const message = event.data;
         if (message.status === "finish") {
             setUrlLoading(false)
+        } else if (message.status === 'error') {
+            alert(message.status) //do here smth, if droped wrong format 
         } else {
             setLoaders(message);
         }
@@ -71,6 +73,7 @@ function RightBar ({
     });
 
     const onSubmit = ({ formData }) => {
+        console.log("submitted uris", formData.uriArr)
         myWorker.postMessage(setUUID(formData.uriArr, "url"));
         setUrlLoading(true)
     }
