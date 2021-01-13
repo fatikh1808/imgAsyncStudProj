@@ -1,9 +1,9 @@
 import React from "react";
 
-function ImgItem({ src, id, deleteOnClick }) {
+function ImgItem({ src, id, key, deleteOnClick }) {
 
     return (
-        <img height="200" src={src} key={id} alt="" onClick={() => deleteOnClick(id)}/>
+        <img height="200" src={src} key={key} alt="" onClick={() => deleteOnClick(id)}/>
     );
 }
 

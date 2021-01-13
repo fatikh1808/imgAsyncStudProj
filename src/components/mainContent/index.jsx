@@ -4,22 +4,6 @@ import { Spin } from 'antd';
 import ImgItem from "../imgItem";
 
 const MainContent = ({ loaders, setDelete }) => {
-    // const loadersMap = {
-    //     done: () => <ImgItem
-    //             src={item.imageURL}
-    //             id={item.id}
-    //             key={index}
-    //             deleteOnClick={deleteOnClick}
-    //     />,
-    //     error: () => {
-    //         alert("wrong url")
-    //     },
-    //     default: () => <div key={index}>
-    //                         <Spin />
-    //                     </div>
-    // }
-
-    console.log(loaders)
 
     let ArraySpin = Object.values(loaders);
 
